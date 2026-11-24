@@ -1,0 +1,21 @@
+# Secrets
+.env
+.streamlit/secrets.toml
+
+# Private data & generated indexes
+data/uploads/*
+data/processed/*
+data/chat_history.db*
+vectorstore/chroma_db/*
+!data/uploads/.gitkeep
+!data/processed/.gitkeep
+!vectorstore/chroma_db/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+.DS_Store

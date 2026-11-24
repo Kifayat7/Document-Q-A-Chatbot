@@ -1,0 +1,10 @@
+[server]
+# Must be >= MAX_FILE_MB (the app enforces the real per-file limit).
+maxUploadSize = 50
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+base = "light"
+primaryColor = "#4f3fe0"

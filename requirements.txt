@@ -1,0 +1,26 @@
+# Lower bounds only: pin exact versions (pip freeze) once you have verified your environment.
+streamlit>=1.46
+python-dotenv>=1.0
+
+# LangChain (split packages)
+langchain-core>=0.3
+langchain-community>=0.3
+langchain-text-splitters>=0.3
+langchain-chroma>=0.2
+langchain-huggingface>=0.1
+langchain-openai>=0.3
+langchain-anthropic>=0.3
+langchain-ollama>=0.3
+
+# Vector DB, embeddings, PDF parsing
+chromadb>=0.5
+sentence-transformers>=3.0
+pypdf>=4.0
+
+# Development / tests
+pytest>=8.0
+reportlab>=4.0   # only to regenerate data/samples/*.pdf
+
+# Optional OCR for scanned PDFs (also needs the Tesseract binary installed):
+# pytesseract>=0.3
+# pypdfium2>=4.0

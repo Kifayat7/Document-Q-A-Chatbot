@@ -16,13 +16,14 @@ from src.errors import ConfigError
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
-SUPPORTED_LLM_PROVIDERS = ("openai", "anthropic", "ollama")
+SUPPORTED_LLM_PROVIDERS = ("openai", "anthropic", "ollama", "groq")
 SUPPORTED_EMBEDDING_PROVIDERS = ("huggingface", "openai")
 
 DEFAULT_LLM_MODELS = {
     "openai": "gpt-4o-mini",
     "anthropic": "claude-sonnet-5-5",
     "ollama": "llama3.1",
+    "groq": "llama-3.3-70b-versatile",
 }
 DEFAULT_EMBEDDING_MODELS = {
     "huggingface": "sentence-transformers/all-MiniLM-L6-v2",
@@ -77,6 +78,7 @@ class Settings:
     # Credentials / endpoints (never displayed)
     openai_api_key: str = ""
     anthropic_api_key: str = ""
+    groq_api_key: str = ""
     ollama_base_url: str = "http://localhost:11434"
     # Ingestion
     max_file_mb: int = 10
@@ -112,6 +114,8 @@ class Settings:
             return bool(self.openai_api_key)
         if provider == "anthropic":
             return bool(self.anthropic_api_key)
+        if provider == "groq":
+            return bool(self.groq_api_key)
         return provider == "ollama"
 
     def ensure_dirs(self) -> None:
@@ -146,6 +150,7 @@ def load_settings() -> Settings:
         embedding_model=os.getenv("EMBEDDING_MODEL") or DEFAULT_EMBEDDING_MODELS[emb_provider],
         openai_api_key=os.getenv("OPENAI_API_KEY", ""),
         anthropic_api_key=os.getenv("ANTHROPIC_API_KEY", ""),
+        groq_api_key=os.getenv("GROQ_API_KEY", ""),
         ollama_base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
         max_file_mb=_env_int("MAX_FILE_MB", 10),
         chunk_size=chunk_size,

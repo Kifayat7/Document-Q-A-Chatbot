@@ -1,33 +1,28 @@
-"""Configurable embedding model factory (Hugging Face local or OpenAI)."""
+"""Embedding model factory: always uses free local Hugging Face embeddings."""
 from __future__ import annotations
+
+from functools import lru_cache
 
 from config.settings import Settings
 from src.errors import ConfigError
 
+HF_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+
+
+@lru_cache(maxsize=1)
+def _load_model():
+    try:
+        from langchain_huggingface import HuggingFaceEmbeddings
+    except ImportError as exc:
+        raise ConfigError(
+            "Install 'langchain-huggingface' and 'sentence-transformers' to use local embeddings."
+        ) from exc
+    return HuggingFaceEmbeddings(
+        model_name=HF_MODEL,
+        encode_kwargs={"normalize_embeddings": True},
+    )
+
 
 def get_embeddings(settings: Settings):
-    """Return a LangChain ``Embeddings`` object for the configured provider.
-
-    * ``huggingface`` - runs locally via sentence-transformers (no API key).
-    * ``openai``      - needs ``OPENAI_API_KEY``.
-    """
-    if settings.embedding_provider == "huggingface":
-        try:
-            from langchain_huggingface import HuggingFaceEmbeddings
-        except ImportError as exc:
-            raise ConfigError(
-                "Install 'langchain-huggingface' and 'sentence-transformers' to use local embeddings."
-            ) from exc
-        return HuggingFaceEmbeddings(
-            model_name=settings.embedding_model,
-            encode_kwargs={"normalize_embeddings": True},
-        )
-
-    if settings.embedding_provider == "openai":
-        if not settings.openai_api_key:
-            raise ConfigError("OPENAI_API_KEY is not set, but EMBEDDING_PROVIDER=openai.")
-        from langchain_openai import OpenAIEmbeddings
-
-        return OpenAIEmbeddings(model=settings.embedding_model, api_key=settings.openai_api_key)
-
-    raise ConfigError(f"Unsupported embedding provider: {settings.embedding_provider!r}")
+    """Return the Hugging Face embeddings (loaded once, then reused)."""
+    return _load_model()

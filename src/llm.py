@@ -1,4 +1,4 @@
-"""Configurable chat-model factory (OpenAI, Anthropic or local Ollama)."""
+"""Configurable chat-model factory (OpenAI, Anthropic, Groq or local Ollama)."""
 from __future__ import annotations
 
 from config.settings import Settings
@@ -9,7 +9,11 @@ def get_llm(settings: Settings):
     """Return a LangChain chat model for ``settings.llm_provider``."""
     provider = settings.llm_provider
     if not settings.has_api_key(provider):
-        env_name = {"openai": "OPENAI_API_KEY", "anthropic": "ANTHROPIC_API_KEY"}.get(provider, "")
+        env_name = {
+            "openai": "OPENAI_API_KEY",
+            "anthropic": "ANTHROPIC_API_KEY",
+            "groq": "GROQ_API_KEY",
+        }.get(provider, "")
         raise ConfigError(f"{env_name} is not set. Add it to your .env file or choose another provider in Settings.")
 
     try:
@@ -21,6 +25,10 @@ def get_llm(settings: Settings):
             from langchain_anthropic import ChatAnthropic
 
             return ChatAnthropic(model=settings.llm_model, temperature=settings.llm_temperature, api_key=settings.anthropic_api_key)
+        if provider == "groq":
+            from langchain_groq import ChatGroq
+
+            return ChatGroq(model=settings.llm_model, temperature=settings.llm_temperature, api_key=settings.groq_api_key)
         if provider == "ollama":
             from langchain_ollama import ChatOllama
 

@@ -1,38 +1,32 @@
-"""Configurable chat-model factory (OpenAI, Anthropic, Groq or local Ollama)."""
+"""Chat-model factory: always uses Groq (free tier)."""
 from __future__ import annotations
+
+import os
 
 from config.settings import Settings
 from src.errors import ConfigError
 
+# Own variable name, so an old LLM_MODEL value in secrets can't bring back a retired model.
+GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
+
+
+def _groq_key(settings: Settings) -> str:
+    key = os.getenv("GROQ_API_KEY") or getattr(settings, "groq_api_key", "")
+    if not key:
+        # Your Groq key may still be stored under the OpenAI name from the earlier workaround.
+        old = os.getenv("OPENAI_API_KEY", "") or getattr(settings, "openai_api_key", "")
+        if old.startswith("gsk_"):
+            key = old
+    return key
+
 
 def get_llm(settings: Settings):
-    """Return a LangChain chat model for ``settings.llm_provider``."""
-    provider = settings.llm_provider
-    if not settings.has_api_key(provider):
-        env_name = {
-            "openai": "OPENAI_API_KEY",
-            "anthropic": "ANTHROPIC_API_KEY",
-            "groq": "GROQ_API_KEY",
-        }.get(provider, "")
-        raise ConfigError(f"{env_name} is not set. Add it to your .env file or choose another provider in Settings.")
-
+    """Return a Groq chat model."""
+    key = _groq_key(settings)
+    if not key:
+        raise ConfigError("GROQ_API_KEY is not set. Add it in Streamlit Secrets.")
     try:
-        if provider == "openai":
-            from langchain_openai import ChatOpenAI
-
-            return ChatOpenAI(model=settings.llm_model, temperature=settings.llm_temperature, api_key=settings.openai_api_key)
-        if provider == "anthropic":
-            from langchain_anthropic import ChatAnthropic
-
-            return ChatAnthropic(model=settings.llm_model, temperature=settings.llm_temperature, api_key=settings.anthropic_api_key)
-        if provider == "groq":
-            from langchain_groq import ChatGroq
-
-            return ChatGroq(model=settings.llm_model, temperature=settings.llm_temperature, api_key=settings.groq_api_key)
-        if provider == "ollama":
-            from langchain_ollama import ChatOllama
-
-            return ChatOllama(model=settings.llm_model, temperature=settings.llm_temperature, base_url=settings.ollama_base_url)
+        from langchain_groq import ChatGroq
     except ImportError as exc:
-        raise ConfigError(f"The LangChain integration for '{provider}' is not installed: {exc}") from exc
-    raise ConfigError(f"Unsupported LLM provider: {provider!r}")
+        raise ConfigError(f"'langchain-groq' is not installed: {exc}") from exc
+    return ChatGroq(model=GROQ_MODEL, temperature=settings.llm_temperature, api_key=key)

@@ -23,7 +23,7 @@ DEFAULT_LLM_MODELS = {
     "openai": "gpt-4o-mini",
     "anthropic": "claude-sonnet-5-5",
     "ollama": "llama3.1",
-    "groq": "llama-3.3-70b-versatile",
+    "groq": "openai/gpt-oss-120b",
 }
 DEFAULT_EMBEDDING_MODELS = {
     "huggingface": "sentence-transformers/all-MiniLM-L6-v2",

@@ -13,6 +13,7 @@ langchain-anthropic>=0.3
 langchain-ollama>=0.3
 langchain-huggingface
 sentence-transformers
+langchain-groq
 
 # Vector DB, embeddings, PDF parsing
 chromadb>=0.5

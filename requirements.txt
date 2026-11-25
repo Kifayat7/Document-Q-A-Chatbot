@@ -11,6 +11,8 @@ langchain-huggingface>=0.1
 langchain-openai>=0.3
 langchain-anthropic>=0.3
 langchain-ollama>=0.3
+langchain-huggingface
+sentence-transformers
 
 # Vector DB, embeddings, PDF parsing
 chromadb>=0.5
